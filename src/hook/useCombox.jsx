@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
-import useContextWeather from "../context/ContextWeather";
+import ContextWeather from "../context/ContextWeather";
 
 function MyCombobox() {
 
-   const {submitLocation : submit} = useContext(useContextWeather);
+   const {submitLocation} = useContext(ContextWeather);
 
   const [query, setQuery] = useState("");
   const [listLocation, setListLocation] = useState([]);
@@ -21,7 +21,8 @@ function MyCombobox() {
     fetchData();
   }, []);
 
-  const handleChange = (text) => {
+  const handleChange = (e) => {
+    const text = e.target.value
     setQuery(text);
     if (text.length > 0) {
       filtrado(text);
@@ -45,7 +46,8 @@ function MyCombobox() {
   const onsuggestionSelected = (text) => {
     setQuery(text);
     setSuggestion([]);
-    submit(query);
+    // submitLocation(query); // así estaba antes. pero no funciona. (la impementacion del input select es rara)
+    submitLocation(text); // así funciona. pero te dejo la anterior porque no entiendo del todo tu objetivo al tener 2 estados para esto
   };
 
 
@@ -55,7 +57,7 @@ function MyCombobox() {
         type="text"
         value={query}
         className="input"
-        onChange={(e) => handleChange(e.target.value)}
+        onChange={handleChange}
       />
       <div
         className={`border-x-2 border-b-0 border-gray-900 ${
