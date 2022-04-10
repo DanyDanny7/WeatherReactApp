@@ -1,34 +1,38 @@
+import React, { useState, createContext } from "react";
 import axios from "axios";
-import React, {  useState } from "react";
 
-const useContextWeather = React.createContext();
+const ContextWeather = createContext();
 
 const ContextWeatherProvider = ({ children }) => {
-  const [weather, setWeather] = useState({});
+  const [weather, setWeather] = useState({ isLoading: true, data: {} });
 
   const submitLocation = async (locationWeather) => {
+    setWeather({ isLoading: true, data: {} })
     try {
-      const resp = await axios.get(
-        `http://api.weatherapi.com/v1/forecast.json?key=52882b95a024481f92470050220704&q=${locationWeather}&days=1&aqi=no&alerts=no`
-      );
-      console.log(resp.data);
-      
-      setWeather(resp.data);
-      
-
+      // esta forma te permite mayor control de los parametros.
+      const { data } = await axios.get(`http://api.weatherapi.com/v1/forecast.json`, {
+        params: {
+          key: "52882b95a024481f92470050220704",
+          q: locationWeather,
+          days: 1,
+          aqi: "no",
+          alerts: "no"
+        }
+      });
+      console.log("resp.data", data);
+      setWeather({ isLoading: false, data })
     } catch (error) {
-      return console.log(error);
+      setWeather({ isLoading: false, data: {} })
+      console.log("submitLocation", error);
     }
   };
 
-  const data = { weather, submitLocation };
-
   return (
-    <useContextWeather.Provider value={data}>
+    <ContextWeather.Provider value={{ weather, submitLocation }}>
       {children}
-    </useContextWeather.Provider>
+    </ContextWeather.Provider>
   );
 };
 
 export { ContextWeatherProvider };
-export default useContextWeather;
+export default ContextWeather;
